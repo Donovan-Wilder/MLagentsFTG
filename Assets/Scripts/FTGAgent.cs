@@ -18,6 +18,9 @@ public class FTGAgent : Agent
     private float failedEpisodes;
     private float timedOutEpisodes;
 
+    public int rayToGoalSegmentReward = 10; // The reward for each segment close to the goal
+    public int rayToGoalSegments = 3; //The number of segments the agent can be awarded once
+    private bool[] rayToGoalSegmentAchieved; // zero is the closest to the goal
 
 
     void FixedUpdate()
@@ -26,18 +29,40 @@ public class FTGAgent : Agent
         if(Physics.Raycast(transform.localPosition,transform.forward,out raycastHit, rayDistance)){
             if(raycastHit.collider.tag == "Wall")
                 raySightObject = 1;
-            if(raycastHit.collider.tag == "Goal")
+            if(raycastHit.collider.tag == "Goal"){
                 raySightObject = 2;
+                float segmentLenght = rayToGoalSegments/rayDistance;
+                int segmentsToGoal = (int)Math.Ceiling(raycastHit.distance/segmentLenght);
+                for(int x= segmentsToGoal-1; x<rayToGoalSegments; x++ ){
+                    if(rayToGoalSegmentAchieved[x] == false){
+                        AddReward(rayToGoalSegmentReward);
+                        Debug.Log($"Rewarded: {rayToGoalSegmentReward}");
+                        rayToGoalSegmentAchieved[x]=true;
+                    }
+                }
+
+                String rayToGoalSegmentAchievedStr="";
+                foreach(bool x in rayToGoalSegmentAchieved){
+                    rayToGoalSegmentAchievedStr+= x?1:0;
+                    rayToGoalSegmentAchievedStr+="-";
+                }
+                // Debug.Log($"SegmentsToGoal:{segmentsToGoal}|-{rayToGoalSegmentAchievedStr}");
+
+            }
             
             raySightDistance = raycastHit.distance;
         }else{
             raySightObject =0;
             raySightDistance =0;
         }
+
+        
         Debug.DrawRay(transform.localPosition,transform.forward*rayDistance);
     }
     public override void OnEpisodeBegin()
     {
+        
+        rayToGoalSegmentAchieved = new bool[rayToGoalSegments];
         transform.localPosition = new Vector3(UnityEngine.Random.Range(-4.25f,4.25f),0f,UnityEngine.Random.Range(-4.25f,4.25f));
         goalTransform.localPosition =new Vector3(UnityEngine.Random.Range(-4.25f,4.25f),0f,UnityEngine.Random.Range(-4.25f,4.25f));
         transform.localRotation.Set(0f,0f,0f,0f);
@@ -106,11 +131,11 @@ public class FTGAgent : Agent
     {
         // Debug.Log("Trigger: " + other.tag);
         if(other.transform.tag=="Wall"){
-            SetReward(-100);
+            AddReward(-100);
             failedEpisodes++;
         }
         if(other.tag =="Goal"){
-            SetReward(100f);
+            AddReward(100f);
             successEpisodes++;
         }
 

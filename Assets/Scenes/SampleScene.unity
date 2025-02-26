@@ -1163,11 +1163,13 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 1500
+  MaxStep: 1000
   goalTransform: {fileID: 779305695}
   rayDistance: 3
   moveSpeed: 3
   rotateAmount: 3
+  rayToGoalSegmentReward: 10
+  rayToGoalSegments: 3
 --- !u!114 &1738808523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1193,7 +1195,7 @@ MonoBehaviour:
   m_Model: {fileID: 5022602860645237092, guid: b8152adf2f1d68a41934fddcbd35c6e7, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
-  m_BehaviorName: FTG 01
+  m_BehaviorName: FTG_RayReward 00
   TeamId: 0
   m_UseChildSensors: 1
   m_UseChildActuators: 1
